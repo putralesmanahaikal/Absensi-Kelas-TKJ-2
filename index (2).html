@@ -1,46 +1,27 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Kelas</title>
+<link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef2ff,#f8fafc);margin:15px}
-.container{background:white;padding:20px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
-h1{text-align:center}
-.topbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
-input,select{padding:8px;border-radius:8px;border:1px solid #ccc}
-table{border-collapse:collapse;width:100%;font-size:12px}
-th,td{border:1px solid #e5e7eb;padding:6px;text-align:center}
-th{background:#6366f1;color:white}
-.chart-box{margin-top:20px;padding:15px;border-radius:12px;background:#f9fafb}
-.flex{display:flex;gap:20px;flex-wrap:wrap}
-canvas{max-width:100%}
-</style>
 </head>
-<body><div class="container">
-<h1>📊 Absensi Kelas</h1><div class="topbar">
+
+<body>
+
+<div class="container">
+<h1>📊 Absensi Kelas</h1>
+
+<div class="topbar">
 <input placeholder="Nama Kelas">
-<select id="bulan" onchange="generateDays()">
-<option value="0">Januari 2026</option>
-<option value="1">Februari 2026</option>
-<option value="2">Maret 2026</option>
-<option value="3">April 2026</option>
-<option value="4">Mei 2026</option>
-<option value="5">Juni 2026</option>
-<option value="6">Juli 2026</option>
-<option value="7">Agustus 2026</option>
-<option value="8">September 2026</option>
-<option value="9">Oktober 2026</option>
-<option value="10">November 2026</option>
-<option value="11">Desember 2026</option>
-</select>
-<select id="pilihSiswa" onchange="updateAll()"></select>
-<select id="modeGrafik" onchange="updateAll()">
-<option value="minggu">📅 Per Minggu</option>
-<option value="bulan">📆 1 Bulan</option>
-</select>
-</div><div style="overflow:auto">
+
+<select id="bulan"></select>
+<select id="pilihSiswa"></select>
+
+</div>
+
+<div style="overflow:auto">
 <table>
 <thead>
 <tr id="headerRow">
@@ -49,130 +30,28 @@ canvas{max-width:100%}
 </thead>
 <tbody id="tbody"></tbody>
 </table>
-</div><div class="flex">
+</div>
+
+<div class="flex">
+
 <div class="chart-box">
-<h3>📊 Grafik Absensi</h3>
+<h3>📊 Grafik</h3>
 <canvas id="chart"></canvas>
-</div><div class="chart-box">
+<h3>🧠 Insight</h3>
+<p id="insight">-</p>
+</div>
+
+<div class="chart-box">
 <h3>🏆 Ranking</h3>
-<p id="insightRanking" style="font-size:13px;color:#555">-</p>
+<p id="insightRanking">-</p>
 <ol id="ranking"></ol>
 <canvas id="rankChart"></canvas>
 </div>
-</div></div><script>
-const siswa=["Adrian Wansman Sugi","Afriyani Sholeha","Alberto Bryan","Azan Azhar M.","Azria Nurfadilla","Banu Arkana Mibras H.","Bintang Hafizh Khadaffi","Cakra Prayata N.","Dava Trian Putra","Eriel Riva Fahreza","Fadly Irsyad Febrian","Fahrido Hidayat","Geshia Mulia Perdana","Gilang Ardian Pratama","Hafidz Ridho Nur Fadilla","Hafizah Nur Afrilyani","Haikal Putra Lesmana","Harits Shilah Al'adhawi","Izyan Ghaisani Prasetyo","M. Syehan Sidik Latuconsina","Maira Luna Hastari","Malik Ahmad Al Ghazi S.","Marcellinus Nathan Doni K.","Mochamad Eryan Ferully","Moh. Zidha Aminnulloh","Muchamad Iqbal Kurniadi","Muhammad Baihaqi A.","Muhammad Al-Fiansyakh","Muhammad Raihan Febriano","Muhammad Reza Pratama","Putri Indah Lestari","Regita Irzaprilya Arbadya F.","Reno Setiawan","Samuel Cristian Sulayman","Umar Rafa Setiawan","Zaskia Salsabila","Zidan Alkaisar","Ziyan Rashif Priyandaru","M. Kafi Rasydan"];
 
-const tbody=document.getElementById('tbody');
-const select=document.getElementById('pilihSiswa');
-const headerRow=document.getElementById('headerRow');
-let hariSekolah=[];
+</div>
 
-function generateDays(){
- headerRow.innerHTML='<th>No</th><th>Nama</th>';
- hariSekolah=[];
- let bulan=parseInt(document.getElementById('bulan').value);
- let tahun=2026;
+</div>
 
- let namaHari=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
- let tanggal=new Date(tahun,bulan,1);
- while(tanggal.getMonth()===bulan){
-  let hari=tanggal.getDay();
-  if(hari>=1 && hari<=5){
-   hariSekolah.push(new Date(tanggal));
-   headerRow.innerHTML+=`<th>${namaHari[hari]}<br>${tanggal.getDate()}</th>`;
-  }
-  tanggal.setDate(tanggal.getDate()+1);
- }
-
- headerRow.innerHTML+=`<th>Izin</th><th>Sakit</th><th>Dispen</th><th>Alpha</th>`;
-
- renderTable();
-}
-
-function renderTable(){
- tbody.innerHTML='';
- siswa.forEach((nama,i)=>{
-  let row=`<tr><td>${i+1}</td><td>${nama}</td>`;
-
-  hariSekolah.forEach(()=>{
-   row+=`<td><input type='checkbox' class='hadir s${i}' onchange='updateAll()'></td>`;
-  });
-
-  row+=`<td><input type='number' class='izin s${i}' value='0' onchange='updateAll()' style='width:50px'></td>`;
-  row+=`<td><input type='number' class='sakit s${i}' value='0' onchange='updateAll()' style='width:50px'></td>`;
-  row+=`<td><input type='number' class='dispen s${i}' value='0' onchange='updateAll()' style='width:50px'></td>`;
-  row+=`<td><input type='number' class='alpha s${i}' value='0' onchange='updateAll()' style='width:50px'></td>`;
-
-  row+=`</tr>`;
-  tbody.innerHTML+=row;
- });
-}
-
-siswa.forEach((nama,i)=>{
- select.innerHTML+=`<option value='${i}'>${nama}</option>`;
-});
-
-const chart=new Chart(document.getElementById('chart'),{
- type:'doughnut',
- data:{
-  labels:['Hadir','Izin','Sakit','Dispen','Alpha'],
-  datasets:[{
-   data:[0,0,0,0,0],
-   backgroundColor:['#60a5fa','#facc15','#fb923c','#86efac','#ef4444']
-  }]
- }
-});
-
-const rankChart=new Chart(document.getElementById('rankChart'),{
- type:'line',
- data:{labels:[],datasets:[{label:'Jumlah Hadir',data:[],fill:false,borderWidth:2}]},
- options:{responsive:true,plugins:{legend:{display:false}}}
-});
-
-function updateAll(){
- let idx=select.value;
- let mode=document.getElementById('modeGrafik').value;
- let rankingData=[];
-
- siswa.forEach((_,i)=>{
-  let hadir=document.querySelectorAll(`.hadir.s${i}:checked`).length;
-  rankingData.push({nama:siswa[i],hadir});
- });
-
- rankingData.sort((a,b)=>b.hadir-a.hadir);
-let top10 = rankingData.slice(0,10);
-
-document.getElementById('ranking').innerHTML =
- top10.map((r,i)=>`<li>${i+1}. ${r.nama} - ${r.hadir} hadir</li>`).join('');
-
-// update line chart ranking
-rankChart.data.labels = top10.map(r=>r.nama.split(' ')[0]);
-rankChart.data.datasets[0].data = top10.map(r=>r.hadir);
-rankChart.update();
-
-// 🔥 INSIGHT RANKING (AI sederhana)
-let insightRank="";
-if(top10[0].hadir >= 20){
- insightRank = "🔥 Kelas memiliki siswa sangat rajin";
-} else if(top10[0].hadir >= 10){
- insightRank = "👍 Kehadiran siswa cukup baik";
-} else {
- insightRank = "⚠️ Kehadiran kelas perlu ditingkatkan";
-}
-
-document.getElementById('insightRanking').innerText = insightRank;
-
- let hadir=document.querySelectorAll(`.hadir.s${idx}:checked`).length;
- let izin=parseInt(document.querySelector(`.izin.s${idx}`).value||0);
- let sakit=parseInt(document.querySelector(`.sakit.s${idx}`).value||0);
- let dispen=parseInt(document.querySelector(`.dispen.s${idx}`).value||0);
- let alpha=parseInt(document.querySelector(`.alpha.s${idx}`).value||0);
-
- chart.data.datasets[0].data=[hadir,izin,sakit,dispen,alpha];
- chart.update();
-}
-
-// init
-generateDays();
-</script></body>
+<script src="script.js"></script>
+</body>
 </html>
